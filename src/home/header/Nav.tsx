@@ -2,9 +2,27 @@ import * as React from "react";
 import { Link, BrowserRouter as Router } from "react-router-dom";
 import "./Nav.styles.scss";
 
-export interface NavBarProps {}
+import { connect } from "react-redux";
 
-const NavBar: React.SFC<NavBarProps> = () => {
+import { Action, Dispatch } from "redux";
+
+import { RootState } from "../../home/redux/rootReducer";
+
+import { signIn, signOut } from "./redux/signIn-signOut";
+
+import { InitialState } from "../header/redux/initialState";
+
+export interface NavBarProps {
+  isLogin: InitialState;
+  signIn: () => void;
+  signOut: () => void;
+}
+
+const NavBar: React.FC<NavBarProps> = ({
+  isLogin,
+  signIn,
+  signOut
+}): JSX.Element => {
   return (
     <div className="navlinks">
       <Router>
@@ -14,12 +32,32 @@ const NavBar: React.SFC<NavBarProps> = () => {
         <Link to="/" className="navlinks__link">
           CONTACT
         </Link>
-        <Link to="/" className="navlinks__link">
-          SIGNIN
-        </Link>
+        {!isLogin.isLogin ? (
+          <Link to="/" className="navlinks__link" onClick={signIn}>
+            SIGNIN
+          </Link>
+        ) : (
+          <Link to="/" className="navlinks__link" onClick={signOut}>
+            SIGNOUT
+          </Link>
+        )}
       </Router>
     </div>
   );
 };
 
-export default NavBar;
+const mapStateToProps = (state: RootState) => ({
+  isLogin: state.login
+});
+
+// const dispatchProps = {
+//   signIn: signIn,
+//   signOut: signOut
+// };
+
+const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
+  signIn: () => dispatch(signIn()),
+  signOut: () => dispatch(signOut())
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(NavBar);
